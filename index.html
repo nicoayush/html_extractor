@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTML Structure Analyzer Pro</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #0066ff;
+      --primary-dark: #0052cc;
+      --secondary: #ff3366;
+      --accent: #00ffaa;
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #151520;
+      --bg-tertiary: #1e1e2e;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0b0;
+      --border: rgba(255, 255, 255, 0.1);
+      --shadow: 0 20px 40px rgba(0, 102, 255, 0.1);
+      --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+      --glass: rgba(255, 255, 255, 0.05);
+    }
+
+    body {
+      font-family: 'SF Pro Display', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 20%, rgba(0, 102, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 51, 102, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 60%, rgba(0, 255, 170, 0.05) 0%, transparent 50%);
+      z-index: -1;
+      animation: backgroundShift 20s ease-in-out infinite;
+    }
+
+    @keyframes backgroundShift {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(-20px, -10px) scale(1.02); }
+      66% { transform: translate(20px, 10px) scale(0.98); }
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 60px;
+      position: relative;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 4px;
+      background: var(--gradient);
+      border-radius: 2px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; transform: translateX(-50%) scaleX(1); }
+      50% { opacity: 1; transform: translateX(-50%) scaleX(1.2); }
+    }
+
+    h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 700;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 15px;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      font-weight: 300;
+    }
+
+    .main-section {
+      display: grid;
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .input-section {
+      position: relative;
+      overflow: hidden;
+      border-radius: 24px;
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+
+    .input-section:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+    }
+
+    .input-header {
+      padding: 20px 30px;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .input-icon {
+      width: 24px;
+      height: 24px;
+      background: var(--gradient);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .input-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    textarea {
+      width: 100%;
+      height: 350px;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', 'Monaco', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 30px;
+      resize: none;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    textarea::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+
+    textarea:focus {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .analyze-btn {
+      background: var(--gradient);
+      border: none;
+      border-radius: 16px;
+      padding: 18px 40px;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 0 auto;
+      min-width: 200px;
+    }
+
+    .analyze-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .analyze-btn:hover::before {
+      left: 100%;
+    }
+
+    .analyze-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0, 102, 255, 0.3);
+    }
+
+    .analyze-btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-icon {
+      font-size: 16px;
+    }
+
+    .results {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease;
+    }
+
+    .results.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    .result-card {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .result-card:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow);
+      transform: translateY(-4px);
+    }
+
+    .result-header {
+      padding: 25px 30px;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .result-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--gradient);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .result-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .result-content {
+      padding: 30px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .result-content::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .result-content::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+    }
+
+    .result-content::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 3px;
+    }
+
+    .summary-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .summary-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--gradient);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .summary-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateX(5px);
+    }
+
+    .summary-label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .summary-value {
+      font-size: 1.1rem;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    pre {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 25px;
+      font-family: 'JetBrains Mono', 'Monaco', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-primary);
+      overflow-x: auto;
+      white-space: pre-wrap;
+      margin: 0;
+    }
+
+    .error {
+      color: var(--secondary);
+      background: rgba(255, 51, 102, 0.1);
+      border: 1px solid rgba(255, 51, 102, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      font-weight: 500;
+    }
+
+    .tag-list, .headings-grid, .sections-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .tag-item, .heading-item, .section-item {
+      background: rgba(0, 102, 255, 0.1);
+      border: 1px solid rgba(0, 102, 255, 0.3);
+      color: var(--primary);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .tag-item:hover, .heading-item:hover, .section-item:hover {
+      background: rgba(0, 102, 255, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .structure-status {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .status-good, .status-bad {
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .status-good {
+      background: rgba(0, 255, 170, 0.1);
+      border: 1px solid rgba(0, 255, 170, 0.3);
+      color: var(--accent);
+    }
+
+    .status-bad {
+      background: rgba(255, 51, 102, 0.1);
+      border: 1px solid rgba(255, 51, 102, 0.3);
+      color: var(--secondary);
+    }
+
+    .comment-examples {
+      margin-top: 15px;
+    }
+
+    .comment-item {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      margin: 8px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 40px;
+      color: var(--text-secondary);
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top: 3px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px 15px;
+      }
+
+      .results {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      textarea {
+        height: 250px;
+        padding: 20px;
+      }
+
+      .result-content {
+        padding: 20px;
+      }
+
+      .analyze-btn {
+        width: 100%;
+        margin: 20px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>HTML Structure Analyzer</h1>
+      <p class="subtitle">Professional-grade HTML analysis and structure visualization</p>
+    </div>
+
+    <div class="main-section">
+      <div class="input-section">
+        <div class="input-header">
+          <div class="input-icon">⚡</div>
+          <div class="input-title">Input HTML Code</div>
+        </div>
+        <textarea 
+          id="htmlInput" 
+          placeholder="Paste your HTML code here for analysis"></textarea>
+      </div>
+
+      <button class="analyze-btn" id="analyzeBtn">
+        <span class="btn-icon">🔍</span>
+        Analyze Structure
+      </button>
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>Analyzing HTML structure...</p>
+    </div>
+
+    <div class="results" id="results">
+      <div class="result-card">
+        <div class="result-header">
+          <div class="result-icon">📊</div>
+          <div class="result-title">Document Summary</div>
+        </div>
+        <div class="result-content">
+          <div id="documentSummary"></div>
+        </div>
+      </div>
+
+      <div class="result-card">
+        <div class="result-header">
+          <div class="result-icon">🏷️</div>
+          <div class="result-title">Unique Elements</div>
+        </div>
+        <div class="result-content">
+          <div id="uniqueElements"></div>
+        </div>
+      </div>
+
+      <div class="result-card full-width">
+        <div class="result-header">
+          <div class="result-icon">🌳</div>
+          <div class="result-title">Element Hierarchy</div>
+        </div>
+        <div class="result-content">
+          <pre id="elementHierarchy"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    class HTMLAnalyzer {
+      constructor() {
+        this.analyzeBtn = document.getElementById('analyzeBtn');
+        this.htmlInput = document.getElementById('htmlInput');
+        this.documentSummary = document.getElementById('documentSummary');
+        this.elementHierarchy = document.getElementById('elementHierarchy');
+        this.results = document.getElementById('results');
+        this.loading = document.getElementById('loading');
+        
+        this.init();
+      }
+
+      init() {
+        this.analyzeBtn.addEventListener('click', () => this.analyzeHTML());
+        
+        // Add keyboard shortcut
+        this.htmlInput.addEventListener('keydown', (e) => {
+          if (e.ctrlKey && e.key === 'Enter') {
+            this.analyzeHTML();
+          }
+        });
+
+        // Auto-resize textarea
+        this.htmlInput.addEventListener('input', this.adjustTextareaHeight);
+      }
+
+      adjustTextareaHeight() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 500) + 'px';
+      }
+
+      async analyzeHTML() {
+        const htmlCode = this.htmlInput.value.trim();
+        
+        if (!htmlCode) {
+          this.showError('Please enter HTML code to analyze.');
+          return;
+        }
+
+        this.showLoading();
+        
+        // Simulate processing time for smooth UX
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        try {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(htmlCode, 'text/html');
+          
+          // Check for parsing errors
+          if (doc.querySelector('parsererror')) {
+            throw new Error('Invalid HTML structure detected');
+          }
+
+          const analysis = this.performAnalysis(doc);
+          this.displayResults(analysis);
+          
+        } catch (error) {
+          this.showError(`Analysis failed: ${error.message}`);
+        } finally {
+          this.hideLoading();
+        }
+      }
+
+      performAnalysis(doc) {
+        const body = doc.body || doc.documentElement;
+        const allElements = doc.querySelectorAll('*');
+        
+        // Count elements by type
+        const elementCounts = {};
+        const semanticElements = ['header', 'nav', 'main', 'section', 'article', 'aside', 'footer'];
+        let semanticCount = 0;
+
+        allElements.forEach(el => {
+          const tagName = el.tagName.toLowerCase();
+          elementCounts[tagName] = (elementCounts[tagName] || 0) + 1;
+          
+          if (semanticElements.includes(tagName)) {
+            semanticCount++;
+          }
+        });
+
+        // Calculate depth
+        const maxDepth = this.calculateMaxDepth(body);
+        
+        // Find images and links
+        const images = doc.querySelectorAll('img').length;
+        const links = doc.querySelectorAll('a').length;
+        const forms = doc.querySelectorAll('form').length;
+        
+        // Check for common attributes
+        const elementsWithId = doc.querySelectorAll('[id]').length;
+        const elementsWithClass = doc.querySelectorAll('[class]').length;
+
+        return {
+          totalElements: allElements.length,
+          elementCounts,
+          semanticElements: semanticCount,
+          maxDepth,
+          images,
+          links,
+          forms,
+          elementsWithId,
+          elementsWithClass,
+          hierarchy: this.buildHierarchy(body)
+        };
+      }
+
+      calculateMaxDepth(element, currentDepth = 0) {
+        let maxDepth = currentDepth;
+        
+        for (let child of element.children) {
+          const childDepth = this.calculateMaxDepth(child, currentDepth + 1);
+          maxDepth = Math.max(maxDepth, childDepth);
+        }
+        
+        return maxDepth;
+      }
+
+      buildHierarchy(element, depth = 0) {
+        const indent = '  '.repeat(depth);
+        const tagName = element.tagName.toLowerCase();
+        const id = element.id ? ` id="${element.id}"` : '';
+        const className = element.className ? ` class="${element.className}"` : '';
+        
+        let result = `${indent}<${tagName}${id}${className}>\n`;
+        
+        for (let child of element.children) {
+          if (child.nodeType === 1) { // Element node
+            result += this.buildHierarchy(child, depth + 1);
+          }
+        }
+        
+        return result;
+      }
+
+      displayResults(analysis) {
+        // Display summary
+        this.documentSummary.innerHTML = `
+          <div class="summary-item">
+            <div class="summary-label">Total Elements</div>
+            <div class="summary-value">${analysis.totalElements}</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Semantic Elements</div>
+            <div class="summary-value">${analysis.semanticElements}</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Maximum Depth</div>
+            <div class="summary-value">${analysis.maxDepth} levels</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Images</div>
+            <div class="summary-value">${analysis.images}</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Links</div>
+            <div class="summary-value">${analysis.links}</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Forms</div>
+            <div class="summary-value">${analysis.forms}</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Elements with ID</div>
+            <div class="summary-value">${analysis.elementsWithId}</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Elements with Class</div>
+            <div class="summary-value">${analysis.elementsWithClass}</div>
+          </div>
+        `;
+
+        // Display hierarchy
+        this.elementHierarchy.textContent = analysis.hierarchy;
+        
+        // Show results with animation
+        this.results.classList.add('visible');
+      }
+
+      showLoading() {
+        this.loading.style.display = 'block';
+        this.results.classList.remove('visible');
+        this.analyzeBtn.disabled = true;
+        this.analyzeBtn.innerHTML = '<span class="spinner" style="width: 20px; height: 20px; margin-right: 10px;"></span>Analyzing...';
+      }
+
+      hideLoading() {
+        this.loading.style.display = 'none';
+        this.analyzeBtn.disabled = false;
+        this.analyzeBtn.innerHTML = '<span class="btn-icon">🔍</span>Analyze Structure';
+      }
+
+      showError(message) {
+        this.documentSummary.innerHTML = `<div class="error">${message}</div>`;
+        this.elementHierarchy.textContent = '';
+        this.results.classList.add('visible');
+      }
+    }
+
+    // Initialize the analyzer when the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      new HTMLAnalyzer();
+    });
+
+    // Add some interactive enhancements
+    document.addEventListener('mousemove', (e) => {
+      const cursor = document.querySelector('.cursor');
+      if (!cursor) {
+        const newCursor = document.createElement('div');
+        newCursor.className = 'cursor';
+        newCursor.style.cssText = `
+          position: fixed;
+          width: 20px;
+          height: 20px;
+          background: radial-gradient(circle, rgba(0,102,255,0.3), transparent);
+          border-radius: 50%;
+          pointer-events: none;
+          z-index: 9999;
+          transition: all 0.1s ease;
+        `;
+        document.body.appendChild(newCursor);
+      }
+      
+      const cursorElement = document.querySelector('.cursor');
+      cursorElement.style.left = e.clientX - 10 + 'px';
+      cursorElement.style.top = e.clientY - 10 + 'px';
+    });
+  </script>
+</body>
+</html>
